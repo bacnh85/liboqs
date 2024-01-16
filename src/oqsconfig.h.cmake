@@ -153,4 +153,10 @@
 #cmakedefine OQS_ENABLE_SIG_sphincs_shake_256f_simple_avx2 1
 #cmakedefine OQS_ENABLE_SIG_sphincs_shake_256s_simple 1
 #cmakedefine OQS_ENABLE_SIG_sphincs_shake_256s_simple_avx2 1
+
+#cmakedefine OQS_ENABLE_SIG_MAYO 1
+#cmakedefine OQS_ENABLE_SIG_mayo_1 1
+#cmakedefine OQS_ENABLE_SIG_mayo_2 1
+#cmakedefine OQS_ENABLE_SIG_mayo_3 1
+#cmakedefine OQS_ENABLE_SIG_mayo_5 1
 ///// OQS_COPY_FROM_UPSTREAM_FRAGMENT_ADD_ALG_ENABLE_DEFINES_END

@@ -37,6 +37,14 @@ upstreams:
     sig_meta_path: '{pretty_name_full}_META.yml'
     sig_scheme_path: '.'
     patches: [pqcrystals-dilithium-yml.patch, pqcrystals-dilithium-ref-shake-aes.patch, pqcrystals-dilithium-avx2-shake-aes.patch]
+  -
+    name: pqmayo
+    git_url: /Users/bhe/git/MAYO-C
+    git_branch: bhe-liboqs-integration
+    git_commit: ea2914812071fe7c0445840e8752801983cd424e
+    sig_meta_path: 'META/{pretty_name_full}_META.yml'
+    sig_scheme_path: '.'
+    patches: [pqmayo-aes.patch, pqmayo-mem.patch]
 kems:
   -
     name: classic_mceliece
@@ -225,4 +233,29 @@ sigs:
         scheme: shake_256s_simple
         pqclean_scheme: sphincs-shake-256s-simple
         pretty_name_full: SPHINCS+-SHAKE-256s-simple
+        signed_msg_order: sig_then_msg
+  -
+    name: mayo
+    default_implementation: opt
+    upstream_location: pqmayo
+    schemes:
+      -
+        scheme: "1"
+        pqclean_scheme: mayo_1
+        pretty_name_full: MAYO_1
+        signed_msg_order: sig_then_msg
+      -
+        scheme: "2"
+        pqclean_scheme: mayo_2
+        pretty_name_full: MAYO_2
+        signed_msg_order: sig_then_msg
+      -
+        scheme: "3"
+        pqclean_scheme: mayo_3
+        pretty_name_full: MAYO_3
+        signed_msg_order: sig_then_msg
+      -
+        scheme: "5"
+        pqclean_scheme: mayo_5
+        pretty_name_full: MAYO_5
         signed_msg_order: sig_then_msg
