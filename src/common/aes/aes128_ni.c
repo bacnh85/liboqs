@@ -8,6 +8,7 @@
 #include <oqs/common.h>
 
 #include <wmmintrin.h>
+#include <tmmintrin.h>
 
 // From crypto_core/aes128ncrypt/dolbeau/aesenc-int
 static inline void aes128ni_setkey_encrypt(const unsigned char *key, __m128i rkeys[11]) {
@@ -80,5 +81,40 @@ void oqs_aes128_ecb_enc_sch_ni(const uint8_t *plaintext, const size_t plaintext_
 	assert(plaintext_len % 16 == 0);
 	for (size_t block = 0; block < plaintext_len / 16; block++) {
 		oqs_aes128_enc_sch_block_ni(plaintext + (16 * block), schedule, ciphertext + (16 * block));
+	}
+}
+
+void oqs_aes128_ctr_enc_sch_ni(const uint8_t *iv, const size_t iv_len, const void *schedule, uint8_t *out, size_t out_len) {
+	__m128i block;
+	__m128i mask = _mm_set_epi8(8, 9, 10, 11, 12, 13, 14, 15, 7, 6, 5, 4, 3, 2, 1, 0);
+	if (iv_len == 12) {
+		const int32_t *ivi = (const int32_t *) iv;
+		block = _mm_set_epi32(0, ivi[2], ivi[1], ivi[0]);
+	} else if (iv_len == 16) {
+		block = _mm_loadu_si128((const __m128i *)iv);
+	} else {
+		exit(EXIT_FAILURE);
+	}
+
+	while (out_len >= 64) {
+		__m128i nv0 = block;
+		__m128i nv1 = _mm_shuffle_epi8(_mm_add_epi64(_mm_shuffle_epi8(block, mask), _mm_set_epi64x(1, 0)), mask);
+		__m128i nv2 = _mm_shuffle_epi8(_mm_add_epi64(_mm_shuffle_epi8(block, mask), _mm_set_epi64x(2, 0)), mask);
+		__m128i nv3 = _mm_shuffle_epi8(_mm_add_epi64(_mm_shuffle_epi8(block, mask), _mm_set_epi64x(3, 0)), mask);
+		aes256ni_encrypt_x4(schedule, nv0, nv1, nv2, nv3, out);
+		block = _mm_shuffle_epi8(_mm_add_epi64(_mm_shuffle_epi8(block, mask), _mm_set_epi64x(4, 0)), mask);
+		out += 64;
+		out_len -= 64;
+	}
+	while (out_len >= 16) {
+		aes256ni_encrypt(schedule, block, out);
+		out += 16;
+		out_len -= 16;
+		block = _mm_shuffle_epi8(_mm_add_epi64(_mm_shuffle_epi8(block, mask), _mm_set_epi64x(1, 0)), mask);
+	}
+	if (out_len > 0) {
+		uint8_t tmp[16];
+		aes256ni_encrypt(schedule, block, tmp);
+		memcpy(out, tmp, out_len);
 	}
 }
